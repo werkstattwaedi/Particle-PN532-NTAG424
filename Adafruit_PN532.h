@@ -15,6 +15,9 @@
 
 #include "Arduino.h"
 #include <Adafruit_SPIDevice.h>
+#include "mbedtls/aes.h"
+#include "mbedtlscmac.h"
+#include <Arduino_CRC32.h>
 
 #define PN532_PREAMBLE (0x00)   ///< Command sequence start, byte 1/3
 #define PN532_STARTCODE1 (0x00) ///< Command sequence start, byte 2/3
@@ -75,6 +78,28 @@
 #define PN532_I2C_READYTIMEOUT (20)   ///< Ready timeout
 
 #define PN532_MIFARE_ISO14443A (0x00) ///< MiFare
+
+// NTAG242 Commands
+#define NTAG424_COMM_MODE_PLAIN (0x00)
+#define NTAG424_COMM_MODE_MAC (0x01)
+#define NTAG424_COMM_MODE_FULL (0x02)
+#define NTAG424_COM_CLA (0x90)
+#define NTAG424_COM_CHANGEKEY (0xC4)
+#define NTAG424_CMD_READSIG (0x3C)           ///Read_Sig
+#define NTAG424_CMD_GETTTSTATUS (0xF7)           ///getttstatus
+#define NTAG424_CMD_GETFILESETTINGS (0xF5)           ///getfilesettings
+#define NTAG424_CMD_CHANGEFILESETTINGS (0x5F)           ///changefilesettings 
+#define NTAG424_CMD_GETCARDUUID (0x51)           ///getfilesettings
+#define NTAG424_CMD_READDATA (0xAD)           ///Readdata
+#define NTAG424_CMD_GETVERSION (0x60)           ///GetVersion
+#define NTAG424_CMD_NEXTFRAME (0xAF)           ///Nextframe
+
+#define NTAG424_RESPONE_GETVERSION_HWTYPE_NTAG424 (0x04) ///Response value HWType NTAG 424
+
+#define NTAG424_COM_ISOCLA (0x00)
+#define NTAG424_CMD_ISOSELECTFILE (0xA4)           ///ISOSelectFile
+#define NTAG424_CMD_ISOREADBINARY (0xB0)           ///ISOReadBinary
+#define NTAG424_CMD_ISOUPDATEBINARY (0xD6)           ///ISOUpdateBinary
 
 // Mifare Commands
 #define MIFARE_CMD_AUTH_A (0x60)           ///< Auth A
@@ -182,6 +207,122 @@ public:
   uint8_t mifareultralight_ReadPage(uint8_t page, uint8_t *buffer);
   uint8_t mifareultralight_WritePage(uint8_t page, uint8_t *data);
 
+  
+  // NTAG424 functions
+  uint8_t ntag424_apdu_send(
+    uint8_t *cla,
+    uint8_t *ins, 
+    uint8_t *p1, 
+    uint8_t *p2, 
+    uint8_t *cmd_header, 
+    uint8_t cmd_header_length, 
+    uint8_t *cmd_data, 
+    uint8_t cmd_data_length, 
+    uint8_t le,
+    uint8_t comm_mode,
+    uint8_t *response,
+    uint8_t response_length
+  );
+  uint32_t ntag424_crc32(uint8_t *data, uint8_t datalength);
+  uint8_t ntag424_addpadding(uint8_t inputlength,uint8_t paddinglength, uint8_t *buffer);
+  uint8_t ntag424_encrypt(uint8_t *key, uint8_t length, uint8_t *input, uint8_t *output);
+  uint8_t ntag424_encrypt(uint8_t *key, uint8_t *iv, uint8_t length, uint8_t *input, uint8_t *output);
+  uint8_t ntag424_decrypt(uint8_t *key, uint8_t length, uint8_t *input, uint8_t *output);
+  uint8_t ntag424_decrypt(uint8_t *key, uint8_t *iv, uint8_t length, uint8_t *input, uint8_t *output);
+  uint8_t ntag424_cmac_short(uint8_t *key, uint8_t *input, uint8_t length, uint8_t *cmac);
+  uint8_t ntag424_cmac(uint8_t *key, uint8_t *input, uint8_t length, uint8_t *cmac);
+  uint8_t ntag424_MAC(uint8_t *cmd, uint8_t *cmdheader, uint8_t cmdheader_length, uint8_t *cmddata, uint8_t cmddata_length, uint8_t *signature);
+  uint8_t ntag424_MAC(uint8_t *key, uint8_t *cmd, uint8_t *cmdheader, uint8_t cmdheader_length, uint8_t *cmddata, uint8_t cmddata_length, uint8_t *signature);
+  void ntag424_random(uint8_t *output, uint8_t bytecount);
+  void ntag424_derive_session_keys(uint8_t *key, uint8_t *RndA, uint8_t *RndB);
+  uint8_t ntag424_rotl(uint8_t *input, uint8_t *output, uint8_t bufferlen, uint8_t rotation);
+  uint8_t ntag424_ReadData(uint8_t *buffer, int fileno, int offset, int size);
+  /*uint8_t ntag424_ReAuthenticate(uint8_t *key, uint8_t keyno, uint8_t *buffer);
+  uint8_t ntag424_Authenticate(uint8_t *key, uint8_t keyno, uint8_t *buffer);*/
+  uint8_t ntag424_Authenticate(uint8_t *key, uint8_t keyno, uint8_t cmd);
+  uint8_t ntag424_ChangeKey(uint8_t *oldkey, uint8_t *newkey, uint8_t keynumber);
+  uint8_t ntag424_ReadSig(uint8_t *buffer);
+  uint8_t ntag424_GetTTStatus(uint8_t *buffer);
+  uint8_t ntag424_GetCardUID(uint8_t *buffer);
+  uint8_t ntag424_GetFileSettings(uint8_t fileno, uint8_t *buffer, uint8_t comm_mode);
+  uint8_t ntag424_ChangeFileSettings(uint8_t fileno, uint8_t *filesettings, uint8_t filesettings_length, uint8_t comm_mode);
+  uint8_t ntag424_ISOReadFile(uint8_t page, uint8_t *buffer);
+  bool ntag424_FormatNDEF();
+  bool ntag424_ISOUpdateBinary(uint8_t *buffer, uint8_t length);
+  bool ntag424_ISOSelectFileById(int fileid);
+  bool ntag424_ISOSelectFileByDFN(uint8_t *dfn);
+  uint8_t ntag424_isNTAG424();
+  uint8_t ntag424_GetVersion();
+  
+  //NTAG424 authresponse data
+  #define NTAG424_AUTHRESPONSE_ENC_SIZE 32
+  #define NTAG424_AUTHRESPONSE_TI_SIZE 4
+  #define NTAG424_AUTHRESPONSE_RNDA_SIZE 16
+  #define NTAG424_AUTHRESPONSE_PDCAP2_SIZE 6
+  #define NTAG424_AUTHRESPONSE_PCDCAP2_SIZE 6
+
+  #define NTAG424_AUTHRESPONSE_TI_OFFSET 0
+  #define NTAG424_AUTHRESPONSE_RNDA_OFFSET NTAG424_AUTHRESPONSE_TI_SIZE
+  #define NTAG424_AUTHRESPONSE_PDCAP2_OFFSET NTAG424_AUTHRESPONSE_TI_SIZE+NTAG424_AUTHRESPONSE_RNDA_SIZE
+  #define NTAG424_AUTHRESPONSE_PCDCAP2_OFFSET NTAG424_AUTHRESPONSE_TI_SIZE+NTAG424_AUTHRESPONSE_RNDA_SIZE+NTAG424_AUTHRESPONSE_PDCAP2_SIZE
+
+  uint8_t ntag424_authresponse_TI[NTAG424_AUTHRESPONSE_TI_SIZE];
+  uint8_t ntag424_authresponse_RNDA[NTAG424_AUTHRESPONSE_RNDA_SIZE];
+  uint8_t ntag424_authresponse_PDCAP2[NTAG424_AUTHRESPONSE_PDCAP2_SIZE];
+  uint8_t ntag424_authresponse_PCDCAP2[NTAG424_AUTHRESPONSE_PCDCAP2_SIZE];
+
+  #define NTAG424_SESSION_KEYSIZE 16
+  struct ntag424_SessionType{
+    bool authenticated;
+    int cmd_counter;
+    uint8_t session_key_enc[NTAG424_SESSION_KEYSIZE];
+    uint8_t session_key_mac[NTAG424_SESSION_KEYSIZE];
+  };
+  
+  struct ntag424_SessionType ntag424_Session;
+  
+  struct ntag424_VersionInfoType{
+    uint8_t VendorID;
+    uint8_t HWType;
+    uint8_t HWSubType;
+    uint8_t HWMajorVersion;
+    uint8_t HWMinorVersion;
+    uint8_t HWStorageSize;
+    uint8_t HWProtocol;
+    uint8_t SWType;
+    uint8_t SWSubType;
+    uint8_t SWMajorVersion;
+    uint8_t SWMinorVersion;
+    uint8_t SWStorageSize;
+    uint8_t SWProtocol;
+    uint8_t UID[7];
+    uint8_t BatchNo[5];
+    uint8_t FabKey[2];
+    uint8_t CWProd;
+    uint8_t YearProd;
+    uint8_t FabKeyID;
+  };
+
+  struct ntag424_VersionInfoType ntag424_VersionInfo;
+  
+  struct ntag424_FileSettings{
+    uint8_t FileType;
+    uint8_t FileOption;
+    uint8_t AccessRights;
+    uint8_t FileSize;
+    uint8_t SDMOptions;
+    uint8_t SMDAccessRights;
+    uint8_t UIDOffset;
+    uint8_t SDMReadCtrOffset;
+    uint8_t PICCDataOffset;
+    uint8_t TTStatusOffset;
+    uint8_t SDMMACInputOffset;
+    uint8_t SDMENCOffset;
+    uint8_t SDMENCLength;
+    uint8_t SDMMACOffset;
+    uint8_t SDMReadCtrlLimit;
+  };
+  
   // NTAG2xx functions
   uint8_t ntag2xx_ReadPage(uint8_t page, uint8_t *buffer);
   uint8_t ntag2xx_WritePage(uint8_t page, uint8_t *data);
