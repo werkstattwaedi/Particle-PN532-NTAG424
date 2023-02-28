@@ -221,7 +221,7 @@ public:
     uint8_t le,
     uint8_t comm_mode,
     uint8_t *response,
-    uint8_t response_length
+    uint8_t response_le
   );
   uint32_t ntag424_crc32(uint8_t *data, uint8_t datalength);
   uint8_t ntag424_addpadding(uint8_t inputlength,uint8_t paddinglength, uint8_t *buffer);
@@ -237,8 +237,6 @@ public:
   void ntag424_derive_session_keys(uint8_t *key, uint8_t *RndA, uint8_t *RndB);
   uint8_t ntag424_rotl(uint8_t *input, uint8_t *output, uint8_t bufferlen, uint8_t rotation);
   uint8_t ntag424_ReadData(uint8_t *buffer, int fileno, int offset, int size);
-  /*uint8_t ntag424_ReAuthenticate(uint8_t *key, uint8_t keyno, uint8_t *buffer);
-  uint8_t ntag424_Authenticate(uint8_t *key, uint8_t keyno, uint8_t *buffer);*/
   uint8_t ntag424_Authenticate(uint8_t *key, uint8_t keyno, uint8_t cmd);
   uint8_t ntag424_ChangeKey(uint8_t *oldkey, uint8_t *newkey, uint8_t keynumber);
   uint8_t ntag424_ReadSig(uint8_t *buffer);
