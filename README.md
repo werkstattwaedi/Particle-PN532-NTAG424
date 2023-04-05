@@ -1,4 +1,13 @@
-# Adafruit-PN532 [![Build Status](https://github.com/adafruit/Adafruit-PN532/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/adafruit/Adafruit-PN532/actions)
+# Adafruit-PN532-NTAG424
+
+This is a fork of the library for the Adafruit PN532 NFC/RFID breakout boards.
+It adds some support for communication with NTAG424 tags.
+Currently this works only for ESP32, due to the use of mbedtls.
+Check the additional methods prefixed with ntag424_.
+Also check ntag424_examples.ino in the examples folder.
+Tested with ESP32-D0WDQ6-V3 (TTGO T-Display) and Arduino 1.8.13.
+
+# Adafruit-PN532
 
 
 This is a library for the Adafruit PN532 NFC/RFID breakout boards
