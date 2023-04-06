@@ -13,7 +13,7 @@
 */
 /**************************************************************************/
 
-#include <Adafruit_PN532.h>
+#include <Adafruit_PN532_NTAG424.h>
 #include <SPI.h>
 #include <Wire.h>
 //#include <ntag424.h>
