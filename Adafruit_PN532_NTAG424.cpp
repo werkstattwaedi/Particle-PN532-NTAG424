@@ -57,7 +57,7 @@
 */
 /**************************************************************************/
 
-#include "Adafruit_PN532.h"
+#include "Adafruit_PN532_NTAG424.h"
 
 Arduino_CRC32 crc32; ///< Arduino CRC32 Class
 
