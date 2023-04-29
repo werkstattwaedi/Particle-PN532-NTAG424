@@ -72,6 +72,7 @@ byte pn532response_firmwarevers[] = {
 
 // #define PN532DEBUG
 // #define MIFAREDEBUG
+#define NTAG424DEBUG
 
 // If using Native Port on Arduino Zero or Due define as SerialUSB
 #define PN532DEBUGPRINT Serial ///< Fixed name for debug Serial instance
@@ -150,6 +151,9 @@ Adafruit_PN532::Adafruit_PN532(uint8_t reset, HardwareSerial *theSer)
 */
 /**************************************************************************/
 bool Adafruit_PN532::begin() {
+#ifdef NTAG424DEBUG
+    Serial.println("NTAG424DEBUG: On");
+#endif
   if (spi_dev) {
     // SPI initialization
     if (!spi_dev->begin()) {
