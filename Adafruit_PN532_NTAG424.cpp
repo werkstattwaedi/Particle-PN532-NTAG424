@@ -153,6 +153,7 @@ Adafruit_PN532::Adafruit_PN532(uint8_t reset, HardwareSerial *theSer)
 bool Adafruit_PN532::begin() {
 #ifdef NTAG424DEBUG
     Serial.println("NTAG424DEBUG: On");
+    Serial.println("EncBuffer: 52");
 #endif
   if (spi_dev) {
     // SPI initialization
