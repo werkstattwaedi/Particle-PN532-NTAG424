@@ -1403,7 +1403,8 @@ uint8_t Adafruit_PN532::ntag424_apdu_send(
                                       sizeof(iv), iv, ive);
       // encrypt cmd_data using SesAuthENCKey
       // padded_payload_length
-      uint8_t payload_encrypted[32];
+      //uint8_t payload_encrypted[32];
+      uint8_t payload_encrypted[52];
       Adafruit_PN532::ntag424_encrypt(ntag424_Session.session_key_enc, ive,
                                       padded_payload_length, payload_padded,
                                       payload_encrypted);
