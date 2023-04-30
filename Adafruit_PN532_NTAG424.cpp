@@ -1752,6 +1752,7 @@ uint8_t Adafruit_PN532::ntag424_cmac_short(uint8_t *key, uint8_t *input,
   PN532DEBUGPRINT.print(F("CMAC_SHORT: "));
   Adafruit_PN532::PrintHexChar(cmac, 8);
 #endif
+  return 0;
 }
 
 /**************************************************************************/
@@ -1851,8 +1852,8 @@ uint8_t Adafruit_PN532::ntag424_MAC(uint8_t *key, uint8_t *cmd,
                                     uint8_t cmddata_length,
                                     uint8_t *signature) {
   // counter is LSB
-  uint8_t counter[2] = {ntag424_Session.cmd_counter & 0xff,
-                        (ntag424_Session.cmd_counter >> 8) & 0xff};
+  uint8_t counter[2] = {(uint8_t) (ntag424_Session.cmd_counter & 0xff),
+                        (uint8_t) ((ntag424_Session.cmd_counter >> 8) & 0xff)};
   uint8_t msglen = 1 + sizeof(counter) + NTAG424_AUTHRESPONSE_TI_SIZE +
                    cmdheader_length + cmddata_length;
 #ifdef NTAG424DEBUG
@@ -2696,15 +2697,17 @@ uint8_t Adafruit_PN532::ntag424_GetVersion() {
     return 0;
   }
   readdata(pn532_packetbuffer, 15);
-  memcpy(&ntag424_VersionInfo.UID, (uint8_t *)pn532_packetbuffer + 8, 7);
+  memcpy(&ntag424_VersionInfo.UID, (uint8_t *) pn532_packetbuffer + 8, 7);
   uint8_t BatchNo[5] = {pn532_packetbuffer[15], pn532_packetbuffer[16],
                         pn532_packetbuffer[17], pn532_packetbuffer[18],
-                        pn532_packetbuffer[19] & 0xf0};
+                        (byte) (pn532_packetbuffer[19] &  0xf0)
+					   };
   memcpy(&ntag424_VersionInfo.BatchNo, BatchNo, 5);
-  uint8_t FabKey[5] = {pn532_packetbuffer[19] & 0x0f, pn532_packetbuffer[20],
-                       pn532_packetbuffer[21] & 0x80};
+  uint8_t FabKey[5] = {(byte) (pn532_packetbuffer[19] & 0x0f), 
+						pn532_packetbuffer[20],
+                       (byte) (pn532_packetbuffer[21] & 0x80)};
   memcpy(&ntag424_VersionInfo.FabKey, FabKey, 5);
-  ntag424_VersionInfo.CWProd = pn532_packetbuffer[21] & 0x3f;
+  ntag424_VersionInfo.CWProd = (byte) (pn532_packetbuffer[21] & 0x3f);
   ntag424_VersionInfo.YearProd = pn532_packetbuffer[22];
   if (pn532_packetbuffer[23] != 0x91) {
     ntag424_VersionInfo.FabKeyID = pn532_packetbuffer[23];
@@ -2826,7 +2829,7 @@ bool Adafruit_PN532::ntag424_ISOSelectFileById(int fileid) {
   uint8_t p1[1] = {0x0};
   uint8_t p2[1] = {0x0};
   uint8_t cmd_header[1] = {0x00};
-  uint8_t cmd_data[2] = {(fileid >> 8) & 0xff, fileid & 0xff};
+  uint8_t cmd_data[2] = {(byte)((fileid >> 8) & 0xff),(byte) (fileid & 0xff)};
   uint8_t result[12];
 
   /* Send the command */
