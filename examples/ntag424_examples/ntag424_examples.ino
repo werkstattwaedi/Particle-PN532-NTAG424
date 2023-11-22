@@ -54,8 +54,10 @@ void setup(void) {
     delay(10); // for Leonardo/Micro/Zero
 
   Serial.println("Hello!");
+#ifdef PN532_RSTPD_N
   pinMode(PN532_RSTPD_N, OUTPUT);
   digitalWrite(PN532_RSTPD_N, HIGH);
+#endif
   nfc.begin();
 
   uint32_t versiondata = nfc.getFirmwareVersion();
