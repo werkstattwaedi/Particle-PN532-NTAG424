@@ -17,8 +17,9 @@
 
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_SPIDevice.h>
+#include "aescmac.h"
 #include "mbedtls/aes.h"
-#include "mbedtlscmac.h"
+
 #include <Arduino_CRC32.h>
 
 #define PN532_PREAMBLE (0x00)   ///< Command sequence start, byte 1/3
@@ -160,6 +161,7 @@
 #define PN532_GPIO_P33 (3)              ///< GPIO 33
 #define PN532_GPIO_P34 (4)              ///< GPIO 34
 #define PN532_GPIO_P35 (5)              ///< GPIO 35
+
 
 /**
  * @brief Class for working with Adafruit PN532 NFC/RFID breakout boards.

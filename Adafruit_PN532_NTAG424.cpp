@@ -1767,46 +1767,20 @@ uint8_t Adafruit_PN532::ntag424_cmac_short(uint8_t *key, uint8_t *input,
     @return
 */
 /**************************************************************************/
+
 uint8_t Adafruit_PN532::ntag424_cmac(uint8_t *key, uint8_t *input,
                                      uint8_t length, uint8_t *cmac) {
-  int ret = 0;
-  const mbedtls_cipher_info_t *cipher_info;
-  cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB);
-  mbedtls_cipher_context_t ctx;
-  mbedtls_cipher_init(&ctx);
-  if ((ret = mbedtls_cipher_setup(&ctx, cipher_info)) != 0) {
-#ifdef NTAG424DEBUG
-    PN532DEBUGPRINT.println(F("could not setup cipher "));
-#endif
-    goto exit;
-  }
-  ret = mbedtls_cipher_cmac_starts(&ctx, key, 128);
-  if (ret != 0) {
-#ifdef NTAG424DEBUG
-    PN532DEBUGPRINT.println(F("could not start cmac "));
-#endif
-    goto exit;
-  }
-  ret = mbedtls_cipher_cmac_update(&ctx, input, length);
-  if (ret != 0) {
-#ifdef NTAG424DEBUG
-    PN532DEBUGPRINT.println(F("error while updateing cmac "));
-#endif
-    goto exit;
-  }
-  ret = mbedtls_cipher_cmac_finish(&ctx, cmac);
-#ifdef NTAG424DEBUG
-  PN532DEBUGPRINT.print(F("cmac key: "));
-  Adafruit_PN532::PrintHexChar(key, 16);
-  PN532DEBUGPRINT.print(F("cmac input: "));
-  Adafruit_PN532::PrintHexChar(input, length);
-  PN532DEBUGPRINT.print(F("cmac output: "));
-  Adafruit_PN532::PrintHexChar(cmac, 16);
-#endif
-  return 1;
-exit:
-  mbedtls_cipher_free(&ctx);
-  return 0;
+	  AES128_CMAC(key, input, length, cmac);
+	//(key, input, length, cmac);
+	#ifdef NTAG424DEBUG
+	  PN532DEBUGPRINT.print(F("cmac key: "));
+	  Adafruit_PN532::PrintHexChar(key, 16);
+	  PN532DEBUGPRINT.print(F("cmac input: "));
+	  Adafruit_PN532::PrintHexChar(input, length);
+	  PN532DEBUGPRINT.print(F("cmac output: "));
+	  Adafruit_PN532::PrintHexChar(cmac, 16);
+	#endif
+
 }
 
 /**************************************************************************/
