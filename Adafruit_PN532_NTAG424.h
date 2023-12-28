@@ -15,10 +15,10 @@
 
 #include "Arduino.h"
 
-#include <Adafruit_I2CDevice.h>
-#include <Adafruit_SPIDevice.h>
 #include "aescmac.h"
 #include "mbedtls/aes.h"
+#include <Adafruit_I2CDevice.h>
+#include <Adafruit_SPIDevice.h>
 
 #include <Arduino_CRC32.h>
 
@@ -162,7 +162,6 @@
 #define PN532_GPIO_P34 (4)              ///< GPIO 34
 #define PN532_GPIO_P35 (5)              ///< GPIO 35
 
-
 /**
  * @brief Class for working with Adafruit PN532 NFC/RFID breakout boards.
  */
@@ -298,8 +297,8 @@ public:
 #define NTAG424_SESSION_KEYSIZE 16 ///< Size of auth aes keys in byte
 
   struct ntag424_SessionType {
-    bool authenticated; ///< true = authenticated
-    int16_t cmd_counter;    ///< command counter
+    bool authenticated;  ///< true = authenticated
+    int16_t cmd_counter; ///< command counter
     uint8_t
         session_key_enc[NTAG424_SESSION_KEYSIZE]; ///< session encryption key
     uint8_t session_key_mac[NTAG424_SESSION_KEYSIZE]; ///< session mac key
@@ -328,28 +327,28 @@ public:
     uint8_t CWProd;         ///< CWProd
     uint8_t YearProd;       ///< YearProd
     uint8_t FabKeyID;       ///< FabKeyID
-  }; ///< struct type for ntag424 versioninfo
+  };                        ///< struct type for ntag424 versioninfo
 
   struct ntag424_VersionInfoType ntag424_VersionInfo; ///< global version info
 
-  struct ntag424_FileSettings { 
-                                ///<  complex :-(
-    uint8_t FileType;           ///< FileType
-    uint8_t FileOption;         ///< FileOption
-    uint8_t AccessRights;       ///< AccessRights
-    uint8_t FileSize;           ///< FileSize
-    uint8_t SDMOptions;         ///< SDMOptions
-    uint8_t SMDAccessRights;    ///< SMDAccessRights
-    uint8_t UIDOffset;          ///< UIDOffset
-    uint8_t SDMReadCtrOffset;   ///< SDMReadCtrOffset
-    uint8_t PICCDataOffset;     ///< PICCDataOffset
-    uint8_t TTStatusOffset;     ///< TTStatusOffset
-    uint8_t SDMMACInputOffset;  ///< SDMMACInputOffset
-    uint8_t SDMENCOffset;       ///< SDMENCOffset
-    uint8_t SDMENCLength;       ///< SDMENCLength
-    uint8_t SDMMACOffset;       ///< SDMMACOffset
-    uint8_t SDMReadCtrlLimit;   ///< SDMReadCtrlLimit
-  };  ///<  currently not used. filesettings are more
+  struct ntag424_FileSettings {
+    ///<  complex :-(
+    uint8_t FileType;          ///< FileType
+    uint8_t FileOption;        ///< FileOption
+    uint8_t AccessRights;      ///< AccessRights
+    uint8_t FileSize;          ///< FileSize
+    uint8_t SDMOptions;        ///< SDMOptions
+    uint8_t SMDAccessRights;   ///< SMDAccessRights
+    uint8_t UIDOffset;         ///< UIDOffset
+    uint8_t SDMReadCtrOffset;  ///< SDMReadCtrOffset
+    uint8_t PICCDataOffset;    ///< PICCDataOffset
+    uint8_t TTStatusOffset;    ///< TTStatusOffset
+    uint8_t SDMMACInputOffset; ///< SDMMACInputOffset
+    uint8_t SDMENCOffset;      ///< SDMENCOffset
+    uint8_t SDMENCLength;      ///< SDMENCLength
+    uint8_t SDMMACOffset;      ///< SDMMACOffset
+    uint8_t SDMReadCtrlLimit;  ///< SDMReadCtrlLimit
+  };                           ///<  currently not used. filesettings are more
 
   // NTAG2xx functions
   uint8_t ntag2xx_ReadPage(uint8_t page, uint8_t *buffer);
