@@ -15,8 +15,22 @@ void shift_left(uint8_t *output, const uint8_t *input, size_t len) {
         overflow = (input[i] & 0x80) ? 1 : 0;
     }
 }
+void PrintHex(const byte *data, const uint32_t numBytes) {
+  uint32_t szPos;
+  for (szPos = 0; szPos < numBytes; szPos++) {
+    Serial.print(F("0x"));
+    // Append leading 0 for small values
+    if (data[szPos] <= 0xF)
+      Serial.print(F("0"));
+    Serial.print(data[szPos] & 0xff, HEX);
+    if ((numBytes > 1) && (szPos != numBytes - 1)) {
+      Serial.print(F(" "));
+    }
+  }
+  Serial.println();
+}
 
-void AES128_CMAC(const uint8_t *key, const uint8_t *input, size_t length, uint8_t output[16]) {
+void AES128_CMAC(const uint8_t key[16], const uint8_t *input, size_t length, uint8_t output[16]) {
     mbedtls_aes_context ctx;
     mbedtls_aes_init(&ctx);
     mbedtls_aes_setkey_enc(&ctx, key, 128);
@@ -64,4 +78,9 @@ void AES128_CMAC(const uint8_t *key, const uint8_t *input, size_t length, uint8_
     mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_ENCRYPT, buffer, output);
 
     mbedtls_aes_free(&ctx);
+    Serial.println("");
+    Serial.print("output:");
+    PrintHex(output,16);
 }
+
+

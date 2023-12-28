@@ -299,7 +299,7 @@ public:
 
   struct ntag424_SessionType {
     bool authenticated; ///< true = authenticated
-    int cmd_counter;    ///< command counter
+    int16_t cmd_counter;    ///< command counter
     uint8_t
         session_key_enc[NTAG424_SESSION_KEYSIZE]; ///< session encryption key
     uint8_t session_key_mac[NTAG424_SESSION_KEYSIZE]; ///< session mac key
