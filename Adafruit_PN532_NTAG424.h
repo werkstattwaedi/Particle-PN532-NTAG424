@@ -260,7 +260,7 @@ public:
   uint8_t ntag424_ChangeFileSettings(uint8_t fileno, uint8_t *filesettings,
                                      uint8_t filesettings_length,
                                      uint8_t comm_mode);
-  uint8_t ntag424_ISOReadFile(uint8_t *buffer);
+  uint8_t ntag424_ISOReadFile(uint8_t *buffer, int maxsize);
   bool ntag424_FormatNDEF();
   bool ntag424_ISOUpdateBinary(uint8_t *buffer, uint8_t length);
   bool ntag424_ISOSelectFileById(int fileid);

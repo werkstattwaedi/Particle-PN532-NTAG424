@@ -2867,7 +2867,7 @@ bool Adafruit_PN532::ntag424_ISOSelectFileByDFN(uint8_t *dfn) {
     @return  datasize
 */
 /**************************************************************************/
-uint8_t Adafruit_PN532::ntag424_ISOReadFile(uint8_t *buffer) {
+uint8_t Adafruit_PN532::ntag424_ISOReadFile(uint8_t *buffer, int maxsize) {
   // uint16_t filesize =  Adafruit_PN532::ntag424_GetFileSize(buffer);
 #ifdef NTAG424DEBUG
   PN532DEBUGPRINT.println(F("ISOGetFileSettings"));
@@ -3012,10 +3012,20 @@ uint8_t Adafruit_PN532::ntag424_ISOReadFile(uint8_t *buffer) {
   PN532DEBUGPRINT.print("pages: ");
   PN532DEBUGPRINT.println(pages);
 #endif
+  bool early_out = false;
   for (int i = 0; i < pages; i++) {
     offset = i * pagesize;
-    if (offset + pagesize > filesize) {
+    if ((offset + pagesize) > filesize) {
       pagesize = filesize - offset;
+    }
+    if ((offset + pagesize) > maxsize) {
+      pagesize = maxsize - offset;
+      filesize = maxsize;
+      early_out = true;
+#ifdef NTAG424DEBUG
+      PN532DEBUGPRINT.println(F("Buffer to small. Not all data read will be returned!"));
+#endif
+      
     }
 
 #ifdef NTAG424DEBUG
@@ -3057,6 +3067,9 @@ uint8_t Adafruit_PN532::ntag424_ISOReadFile(uint8_t *buffer) {
       PN532DEBUGPRINT.println(F("Unexpected response reading block: "));
 #endif
       return 0;
+    }
+    if (early_out){
+      break;
     }
   }
   // Return OK signal
