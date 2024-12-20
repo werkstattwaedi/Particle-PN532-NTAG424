@@ -1,6 +1,8 @@
 /**************************************************************************/
 /*!
-    @file Adafruit_PN532.h
+    @file Particle_PN532.h
+
+    v3.0 - Replaced all communication/interface code with Particle Device OS API
 
     v2.0  - Refactored to add I2C support from Adafruit_NFCShield_I2C library.
 
@@ -10,17 +12,13 @@
 */
 /**************************************************************************/
 
-#ifndef ADAFRUIT_PN532_H
-#define ADAFRUIT_PN532_H
+#ifndef PARTICLE_PN532_H
+#define PARTICLE_PN532_H
 
-#include "Arduino.h"
+#include "Particle.h"
 
 #include "aescmac.h"
-#include "mbedtls/aes.h"
-#include <Adafruit_I2CDevice.h>
-#include <Adafruit_SPIDevice.h>
 
-#include <Arduino_CRC32.h>
 
 #define PN532_PREAMBLE (0x00)   ///< Command sequence start, byte 1/3
 #define PN532_STARTCODE1 (0x00) ///< Command sequence start, byte 2/3
@@ -165,21 +163,13 @@
 /**
  * @brief Class for working with Adafruit PN532 NFC/RFID breakout boards.
  */
-class Adafruit_PN532 {
+class Particle_PN532 {
 public:
-  Adafruit_PN532(uint8_t clk, uint8_t miso, uint8_t mosi,
-                 uint8_t ss);                          // Software SPI
-  Adafruit_PN532(uint8_t ss, SPIClass *theSPI = &SPI); // Hardware SPI
-  Adafruit_PN532(uint8_t irq, uint8_t reset,
-                 TwoWire *theWire = &Wire);              // Hardware I2C
-  Adafruit_PN532(uint8_t reset, HardwareSerial *theSer); // Hardware UART
-  bool begin(void);
-
+   Particle_PN532(uint8_t reset, USARTSerial *theSer); // Hardware UART
   void reset(void);
-  void wakeup(void);
+  bool wakeup(void);
 
   // Generic PN532 functions
-  bool SAMConfig(void);
   uint32_t getFirmwareVersion(void);
   bool sendCommandCheckAck(uint8_t *cmd, uint8_t cmdlen,
                            uint16_t timeout = 100);
@@ -357,8 +347,8 @@ public:
                                uint8_t dataLen);
 
   // Help functions to display formatted text
-  static void PrintHex(const byte *data, const uint32_t numBytes);
-  static void PrintHexChar(const byte *pbtData, const uint32_t numBytes);
+  static String bytesToHexString(const uint8_t *data, const size_t numBytes);
+  static String bytesToHexAndAsciiString(const uint8_t *data, const size_t numBytes);
 
 private:
   int8_t _irq = -1, _reset = -1, _cs = -1;
@@ -374,9 +364,7 @@ private:
   bool waitready(uint16_t timeout);
   bool readack();
 
-  Adafruit_SPIDevice *spi_dev = NULL;
-  Adafruit_I2CDevice *i2c_dev = NULL;
-  HardwareSerial *ser_dev = NULL;
+  USARTSerial *ser_dev = NULL;
 };
 
 #endif

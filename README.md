@@ -1,3 +1,10 @@
+# Particle-PN532-NTAG424
+
+This is a fork of the library for the Adafruit PN532 NFC/RFID breakout boards,
+with Boltring's support for communication with NTAG424 tags.
+
+This works only for Particle DeviceOS APIs, and only with UART
+
 # Adafruit-PN532-NTAG424
 
 This is a fork of the library for the Adafruit PN532 NFC/RFID breakout boards.
@@ -9,7 +16,6 @@ Tested with ESP32-D0WDQ6-V3 (TTGO T-Display) and Arduino 1.8.13.
 
 # Adafruit-PN532
 
-
 This is a library for the Adafruit PN532 NFC/RFID breakout boards
 This library works with the Adafruit NFC breakout
 
@@ -17,9 +23,6 @@ This library works with the Adafruit NFC breakout
 
 Check out the links above for our tutorials and wiring diagrams
 These chips use I2C or SPI to communicate.
-
-# Dependencies
-* [Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO)
 
 
 # Contributing
